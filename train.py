@@ -35,7 +35,7 @@ FLAGS = tf.flags.FLAGS
 data_helper = DataHelper()
 
 def preprocess():
-    print('loadign data')
+    print('loading data')
 
     x_text, y = data_helper.load_data_and_labels("./dataset/ARM")
 

@@ -17,10 +17,15 @@ class DataHelper(object):
     def get_all_data(self, directory='./dataset/ARM'):
 
         all_result = []
+        print('loading data {} from {}'.format("O0", directory))
         all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O0'), label=0)
+        print('loading data {} from {}'.format("O1", directory))
         all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O1'), label=1)
+        print('loading data {} from {}'.format("O2", directory))
         all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O2'), label=2)
+        print('loading data {} from {}'.format("O3", directory))
         all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O3'), label=3)
+        print('loading data {} from {}'.format("Os", directory))
         all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'Os'), label=4)
 
         return np.array(all_result)
