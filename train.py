@@ -7,7 +7,7 @@ from data_helper import DataHelper
 from TextClassif import TextCNN
 from tensorflow.contrib import learn
 
-tf.flags.DEFINE_float("dev_sample_percentage", .01, "Percentage of the training data to use for validation (default is 0.01)")
+tf.flags.DEFINE_float("dev_sample_percentage", .2, "Percentage of the training data to use for validation (default is 0.01)")
 tf.flags.DEFINE_string("positive_data_file", "./data/rt-polaritydata/rt-polarity.pos",
                        "Data source for the positive data.")
 tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity.neg",
@@ -17,7 +17,7 @@ tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity
 tf.flags.DEFINE_integer("embedding_dim", 128, "Dimensionality of character embedding (default: 128)")
 tf.flags.DEFINE_string("filter_sizes", "3,4,5,6", "Comma-separated filter sizes (default: '3,4,5')")
 tf.flags.DEFINE_integer("num_filters", 256, "Number of filters per filter size (default: 128)")
-tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.5)")
+tf.flags.DEFINE_float("dropout_keep_prob", 0.8, "Dropout keep probability (default: 0.8)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 0.0)")
 
 # Training parameters
@@ -34,13 +34,15 @@ tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on 
 FLAGS = tf.flags.FLAGS
 data_helper = DataHelper()
 
+class_num = 4 # 类别数目
+
 def preprocess():
     print('loading data')
 
     x_text, y = data_helper.load_data_and_labels("./dataset/ARM")
 
     #one-hot encode
-    y_oh = tf.one_hot(y, depth=5)
+    y_oh = tf.one_hot(y, depth=class_num)
     with tf.Session() as sess:
         y_encode = sess.run(y_oh)
         # print(sess.run(y_oh))
@@ -82,10 +84,10 @@ def train(x_train, y_train, x_dev, y_dev):
             cnn = TextCNN(
                 seq_len=x_train.shape[1],
                 seq_width=x_train.shape[2],
-                num_class = 5,
+                num_class = class_num,
                 # vocabsize=len(vocab_processor.vocabulary_),
                 vocabsize= 0,
-                embedding_size=4,
+                embedding_size= 4 ,
                 filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
                 num_filters=FLAGS.num_filters
             )
