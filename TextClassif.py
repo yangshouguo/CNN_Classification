@@ -16,6 +16,7 @@ class TextCNN(object):
         self.input_x = tf.placeholder(tf.float32, [None, seq_len, seq_width], name='inputx')
         self.input_y = tf.placeholder(tf.float32, [None, num_class], name='inputy')
         self.dropout_keep_prob = tf.placeholder(tf.float32, name='dropout_keep_prob')
+        self._hidden_size = 500
 
         with tf.device('/cpu:0'), tf.name_scope('embedding'):
             # W = tf.Variable(
@@ -56,11 +57,15 @@ class TextCNN(object):
 
         with tf.name_scope('dropout'):
             self.h_drop = tf.nn.dropout(self.h_pool_flat, self.dropout_keep_prob)
+        with tf.name_scope('dense_layer'):
+            W_d = tf.Variable(tf.truncated_normal([num_filters_total, self._hidden_size], stddev=0.1), name="W_d")
+            b_d = tf.Variable(tf.constant(0.2, shape=[self._hidden_size]),name='b_d')
+            self.hidden_out = tf.sigmoid(tf.nn.xw_plus_b(self.h_drop, W_d, b_d))
 
         with tf.name_scope('output'):
-            W = tf.Variable(tf.truncated_normal([num_filters_total, num_class], stddev=0.1), name='W')
+            W = tf.Variable(tf.truncated_normal([self._hidden_size, num_class], stddev=0.1), name='W')
             b = tf.Variable(tf.constant(0.1, shape=[num_class]), name="b")
-            self.scores = tf.nn.xw_plus_b(self.h_drop, W, b, name="scores")
+            self.scores = tf.nn.xw_plus_b(self.hidden_out, W, b, name="scores")
             self.predictions = tf.argmax(self.scores, 1, name="predictions")
 
         with tf.name_scope('loss'):
