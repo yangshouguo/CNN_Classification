@@ -62,10 +62,15 @@ class TextCNN(object):
             b_d = tf.Variable(tf.constant(0.2, shape=[self._hidden_size]),name='b_d')
             self.hidden_out = tf.sigmoid(tf.nn.xw_plus_b(self.h_drop, W_d, b_d))
 
+        with tf.name_scope("dense_layer2"):
+            W_d2 = tf.Variable(tf.truncated_normal([self._hidden_size, self._hidden_size], stddev=0.1), name="W_d2")
+            b_d2 = tf.Variable(tf.constant(0.2, shape=[self._hidden_size]),name='b_d2')
+            self.hidden_out2 = tf.sigmoid(tf.nn.xw_plus_b(self.hidden_out, W_d2, b_d2))
+
         with tf.name_scope('output'):
             W = tf.Variable(tf.truncated_normal([self._hidden_size, num_class], stddev=0.1), name='W')
             b = tf.Variable(tf.constant(0.1, shape=[num_class]), name="b")
-            self.scores = tf.nn.xw_plus_b(self.hidden_out, W, b, name="scores")
+            self.scores = tf.nn.xw_plus_b(self.hidden_out2, W, b, name="scores")
             self.predictions = tf.argmax(self.scores, 1, name="predictions")
 
         with tf.name_scope('loss'):
