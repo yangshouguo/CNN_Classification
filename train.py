@@ -34,7 +34,7 @@ tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on 
 FLAGS = tf.flags.FLAGS
 data_helper = DataHelper()
 
-class_num = 4 # 类别数目
+class_num = 5 # 类别数目
 
 def preprocess():
     print('loading data')
@@ -167,7 +167,7 @@ def train(x_train, y_train, x_dev, y_dev):
                 feed_dict
             )
             time_str = datetime.datetime.now().isoformat()
-            print("{}: step {}, loss {:g}, acc{:g}".format(time_str, step, loss, accuracy))
+            print("dev_size is {} ; {}: step {}, loss {:g}, acc{:g}".format(x_dev.shape[0] ,time_str, step, loss, accuracy))
             if writer:
                 writer.add_summary(summaries, step)
 
