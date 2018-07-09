@@ -44,6 +44,8 @@ class DataHelper(object):
     def load_data_and_labels(self, dir):
         data = self.get_all_data(dir)
         train_data = np.array(list(data[:, 0]), dtype=np.float32)
+        #归一化
+        train_data = np.true_divide(train_data, 127)
         return train_data, data[:, 1]
 
     def read_binary_from_file(self, file_path, rowbyte=4, filesize=4096):
