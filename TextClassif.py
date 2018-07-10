@@ -10,13 +10,13 @@ import tensorflow as tf
 
 class TextCNN(object):
     def __init__(self
-                 , seq_len, seq_width, num_class, vocabsize, embedding_size, filter_sizes, num_filters):
+                 , seq_len, seq_width, num_class, hidden_size, embedding_size, filter_sizes, num_filters):
         pass
 
         self.input_x = tf.placeholder(tf.float32, [None, seq_len, seq_width], name='inputx')
         self.input_y = tf.placeholder(tf.float32, [None, num_class], name='inputy')
         self.dropout_keep_prob = tf.placeholder(tf.float32, name='dropout_keep_prob')
-        self._hidden_size = 500
+        self._hidden_size = hidden_size
 
         with tf.device('/cpu:0'), tf.name_scope('embedding'):
             # W = tf.Variable(

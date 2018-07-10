@@ -7,18 +7,19 @@ from data_helper import DataHelper
 from TextClassif import TextCNN
 from tensorflow.contrib import learn
 
-tf.flags.DEFINE_float("dev_sample_percentage", .8, "Percentage of the training data to use for validation (default is 0.01)")
-tf.flags.DEFINE_string("positive_data_file", "./data/rt-polaritydata/rt-polarity.pos",
-                       "Data source for the positive data.")
-tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity.neg",
-                       "Data source for the negative data.")
+tf.flags.DEFINE_float("dev_sample_percentage", .2, "Percentage of the training data to use for validation (default is 0.2)")
+tf.flags.DEFINE_string("data_file", "../dataset/ARM",
+                       "Data source for the data.")
+# tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity.neg",
+#                        "Data source for the negative data.")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 128, "Dimensionality of character embedding (default: 128)")
-tf.flags.DEFINE_string("filter_sizes", "3,4,5,6", "Comma-separated filter sizes (default: '3,4,5')")
+tf.flags.DEFINE_string("filter_sizes", "3,4,5,6", "Comma-separated filter sizes (default: '3,4,5,6')")
 tf.flags.DEFINE_integer("num_filters", 128, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.8, "Dropout keep probability (default: 0.8)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 0.0)")
+tf.flags.DEFINE_integer("hidden_dim", 500, "hidden layer dimension default(500)")
 
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
@@ -37,9 +38,9 @@ data_helper = DataHelper()
 class_num = 5 # 类别数目
 
 def preprocess():
-    print('loading data')
+    print('loading data...')
 
-    x_text, y = data_helper.load_data_and_labels("./dataset/ARM")
+    x_text, y = data_helper.load_data_and_labels(FLAGS.data_file)
 
     #one-hot encode
     y_oh = tf.one_hot(y, depth=class_num)
@@ -85,8 +86,8 @@ def train(x_train, y_train, x_dev, y_dev):
                 seq_len=x_train.shape[1],
                 seq_width=x_train.shape[2],
                 num_class = class_num,
+                hidden_size = FLAGS.hidden_dim,
                 # vocabsize=len(vocab_processor.vocabulary_),
-                vocabsize= 0,
                 embedding_size= 4 ,
                 filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
                 num_filters=FLAGS.num_filters
@@ -171,6 +172,8 @@ def train(x_train, y_train, x_dev, y_dev):
             if writer:
                 writer.add_summary(summaries, step)
 
+            return accuracy
+
         #Generate batches
         batches = data_helper.batch_iter(list(zip(x_train, y_train)),FLAGS.batch_size,
                                               FLAGS.num_epochs)
@@ -189,6 +192,16 @@ def train(x_train, y_train, x_dev, y_dev):
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
                 print("Saved model chechpoint to{}\n".format(path))
+
+        #testing
+        dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1)
+        acc_array = []
+        for dev_batch in dev_batches:
+            x_batch, y_batch = zip(*dev_batch)
+            acc_array.append(dev_step(x_batch, y_batch))
+
+        print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))))
+
 
 def main(arg):
     x_train, y_train, x_dev, y_dev = preprocess()
