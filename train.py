@@ -14,7 +14,7 @@ tf.flags.DEFINE_string("data_file", "../dataset/ARM",
 #                        "Data source for the negative data.")
 
 # Model Hyperparameters
-tf.flags.DEFINE_integer("embedding_dim", 128, "Dimensionality of character embedding (default: 128)")
+tf.flags.DEFINE_integer("embedding_dim", 8, "Dimensionality of character embedding (default: 128)")
 tf.flags.DEFINE_string("filter_sizes", "3,4,5,6", "Comma-separated filter sizes (default: '3,4,5,6')")
 tf.flags.DEFINE_integer("num_filters", 128, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.5, "Dropout keep probability (default: 0.8)")
@@ -23,7 +23,7 @@ tf.flags.DEFINE_integer("hidden_dim", 500, "hidden layer dimension default(500)"
 
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
-tf.flags.DEFINE_integer("num_epochs", 150, "Number of training epochs (default: 200)")
+tf.flags.DEFINE_integer("num_epochs", 300, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
@@ -88,7 +88,7 @@ def train(x_train, y_train, x_dev, y_dev):
                 num_class = class_num,
                 hidden_size = FLAGS.hidden_dim,
                 # vocabsize=len(vocab_processor.vocabulary_),
-                embedding_size= 4 ,
+                embedding_size= FLAGS.embedding_dim,
                 filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
                 num_filters=FLAGS.num_filters
             )
@@ -168,7 +168,7 @@ def train(x_train, y_train, x_dev, y_dev):
                 feed_dict
             )
             time_str = datetime.datetime.now().isoformat()
-            print("dev_size is {} ; {}: step {}, loss {:g}, acc{:g}".format(x_dev.shape[0] ,time_str, step, loss, accuracy))
+            print("dev_size is {} ; {}: step {}, loss {:g}, acc{:g}".format(len(x_batch) ,time_str, step, loss, accuracy))
             if writer:
                 writer.add_summary(summaries, step)
 
