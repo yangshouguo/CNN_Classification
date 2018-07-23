@@ -26,7 +26,7 @@ class TextCNN(object):
             #
             # # The result of the embedding operation is a 3-dimensional tensor of shape [None, sequence_length, embedding_size]
             self.embedding_chars = tf.nn.embedding_lookup(W, self.input_x)
-            self.embedding_chars_expanded = self.embedding_chars
+            self.embedding_chars_expanded = tf.reshape(self.embedding_chars, shape=[-1, seq_len, seq_width*embedding_size, 1])
             # self.embedding_chars_expanded = tf.expand_dims(self.input_x, -1)
 
         # Convolutional and max-pooling layers
@@ -35,7 +35,7 @@ class TextCNN(object):
         for i, filter_size in enumerate(filter_sizes):
             with tf.name_scope('conv-maxpool-%s' % filter_size):
                 # Conv layer
-                filter_shape = [filter_size, seq_width, embedding_size, num_filters]
+                filter_shape = [filter_size, seq_width*embedding_size, 1, num_filters]
                 W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name='W')
                 b = tf.Variable(tf.constant(0.1, shape=[num_filters]), name='b')
                 conv = tf.nn.conv2d(self.embedding_chars_expanded,
