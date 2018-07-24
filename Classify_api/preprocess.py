@@ -9,12 +9,25 @@
 import subprocess as sp
 
 def get_text_sec_binary(filepath):
-    cmd_str = './extract_text_section.sh {}'.format(filepath)
-    print(cmd_str)
-    s,o = sp.getstatusoutput(cmd_str)
-    print(s , o)
+    script = './extract_text_section.sh'
+    cmd_str = 'ls -l {}'.format(filepath)
+    cmd_list = cmd_str.split(' ')
+    print(cmd_list)
+    out = sp.check_output(cmd_list)
+
+    lines = out.split(b'\n')
+    arr = []
+
+    #取前40行数据
+    n = 40
+    for i in range(n):
+        arr.append(list(bytearray(lines[i])))
+
+    return arr
+
+
 
 
 
 if __name__ == '__main__':
-    get_text_sec_binary('./ps')
+    get_text_sec_binary('./')
