@@ -36,8 +36,8 @@ class TextCNN(object):
         for i, filter_size in enumerate(filter_sizes):
             with tf.name_scope('conv-maxpool-%s' % filter_size):
                 # Conv layer
-                filter_shape = [filter_size, 1, embedding_size, num_filters]
-                # filter_shape = [filter_size, seq_width, embedding_size, num_filters]
+                # filter_shape = [filter_size, , embedding_size, num_filters]
+                filter_shape = [filter_size, seq_width, embedding_size, num_filters]
                 W = tf.Variable(tf.truncated_normal(filter_shape, stddev=0.1), name='W')
                 b = tf.Variable(tf.constant(0.1, shape=[num_filters]), name='b')
                 conv = tf.nn.conv2d(self.embedding_chars_expanded,
@@ -48,7 +48,7 @@ class TextCNN(object):
 
                 h = tf.nn.relu(tf.nn.bias_add(conv, b), name='relu')
 
-                pooled = tf.nn.max_pool(h, ksize=[1, seq_len - filter_size + 1, seq_width, 1], #seq_len - filter_size 让卷积得到的结果变成一个单一的值
+                pooled = tf.nn.max_pool(h, ksize=[1, seq_len - filter_size + 1, 1, 1], #seq_len - filter_size 让卷积得到的结果变成一个单一的值
                                         strides=[1, 1, 1, 1],
                                         padding="VALID",
                                         name='pool')

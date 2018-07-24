@@ -25,7 +25,7 @@ tf.flags.DEFINE_integer("hidden_dim", 500, "hidden layer dimension default(500)"
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 300, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
-tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("checkpoint_every", 10, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 5, "Number of checkpoints to store (default: 5)")
 
 # Misc Parameters
