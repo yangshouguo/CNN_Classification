@@ -15,15 +15,20 @@ def get_text_sec_binary(filepath):
     print(cmd_list)
     out = sp.check_output(cmd_list)
 
-    lines = out.split(b'\n')
+    out_byte = list(bytearray(out))
+
     arr = []
 
-    #取前40行数据
-    n = 40
-    for i in range(n):
-        arr.append(list(bytearray(lines[i])))
+    for i in range(40):
+        arr.append(out_byte[i*4:(i+1)*4])
+        for j in range(4):
+            print(hex(arr[i][j]), end=' ')
+        print()
 
-    return arr
+
+
+    #取前40行数据
+
 
 
 
