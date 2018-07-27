@@ -9,4 +9,5 @@ fi
 
 bin_path=$1
 
-readelf -x .text $bin_path |tail -n +4 |cut -c 5-|xxd -r
+#readelf -x .text $bin_path |tail -n +4 |cut -c 8-|xxd -r
+hexdump $bin_path |tail -n +4|cut -c 8-
