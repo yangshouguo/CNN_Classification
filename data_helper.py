@@ -7,7 +7,7 @@
 # @intro: 读取各个优化级别的二进制文件，并且自动附加标签，从O0 - Os 依次对应 0~5
 import os
 import numpy as np
-
+import re
 
 class DataHelper(object):
     def __init__(self):
@@ -36,8 +36,10 @@ class DataHelper(object):
 
         result = []
         # 迭代访问目录下每个文件
-        for file in os.listdir(directory):
-            result.append([self.read_binary_from_file(os.path.join(directory, file)), label])
+        for parent, dirs, files in os.walk(directory):
+            # result.append([self.read_binary_from_file(filez), label])
+            for file in files:
+                result.append([self.read_hex_from_file(os.path.join(parent, file)), label])
 
         return result
 
@@ -45,11 +47,11 @@ class DataHelper(object):
         data = self.get_all_data(dir)
         train_data = np.array(list(data[:, 0]), dtype=np.float32)
         #归一化
-        train_data = np.true_divide(train_data, 127)
+        train_data = np.true_divide(train_data, 256)
         return train_data, data[:, 1]
 
     def read_binary_from_file(self, file_path, rowbyte=4, filesize=4096):
-        # file_path: 二进制文件所在目录
+        # file_path: 二进制文件的路径
         # rowbyte: 每一行的字节数
         # filesize : 文件大小
         # 返回一个矩阵 N*32矩阵 N = 4096/32 = 128
@@ -60,6 +62,53 @@ class DataHelper(object):
 
         byte_array = np.array(allbytevalue)
         return byte_array.reshape(-1, rowbyte)
+
+    def read_hex_from_file(self, file_path, rows = 1024, min_len = 20):
+        # file_path: 二进制文件的路径
+        # rows : 最多读取文件的行数，即二进制文件的指令长度
+        # min_len ： 文件包含的最少的指令长度，如果少于这个长度，丢弃该文件
+
+        data_4byte = []
+        readed_lines = rows
+        byte_len = 4 # 每一行4个字节
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+            if len(lines) < min_len:
+                return None
+
+            if rows > len(lines):
+                readed_lines = len(lines)
+
+
+            for index in range(readed_lines):
+                hexdata = lines[index].strip()
+
+                if len(hexdata) == 0:
+                    continue
+
+                split_data = re.findall(r'.{2}', hexdata)
+
+                split_integer = []
+                for byte_hex in split_data:
+                    split_integer.append(int('0x'+byte_hex, base=16))
+
+                if len(split_integer) < byte_len:
+                    n_split_integer = np.zeros(byte_len)
+                    n_split_integer[0:len(split_integer)] = split_integer
+                    split_integer = n_split_integer.tolist()
+
+                data_4byte.append(split_integer)
+
+            if rows > len(data_4byte):
+                fill_data = np.zeros((rows, byte_len))
+                fill_data[0:len(data_4byte)] = data_4byte
+                return fill_data
+
+        return np.array(data_4byte).reshape((-1, byte_len))
+
+
+
+
 
     def batch_iter(self, data, batch_size, num_epochs, shuffle=True):
         """
@@ -83,11 +132,9 @@ class DataHelper(object):
 
 def test():
     dh = DataHelper()
-    data = dh.get_all_data("./dataset/ARM/")
-    input = data[:, 0]
-    labels = data[:, 1]
-    single_in = input[0]
-    print(labels)
+    x, y = dh.load_data_and_labels("../hex_dataset/")
+
+    print(y)
 
 
 if __name__ == '__main__':

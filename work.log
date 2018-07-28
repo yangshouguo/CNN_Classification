@@ -34,3 +34,11 @@ Dropout 参数 keep_prob 由 0.5 -> 0.8
 
 将 1024 * 4 * 8 的嵌入层输出 reshape 得到 1024 * 32 * 1 的输出 5分类准确率81.46%
 
+
+2018年07月24日13:50:36：
+
+将 1024 * 4 * 8 的嵌入层 加以 [3,4,5] * 1 * embedding_size 的filter进行卷积
+然后用形状 seq_length - [3,4,5] * seq_width * embedding_size 的filter进行平均池化
+
+效果更差
+
