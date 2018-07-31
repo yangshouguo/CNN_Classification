@@ -39,13 +39,16 @@ class DataHelper(object):
         for parent, dirs, files in os.walk(directory):
             # result.append([self.read_binary_from_file(filez), label])
             for file in files:
-                result.append([self.read_hex_from_file(os.path.join(parent, file)), label])
+                hexfiledata = self.read_hex_from_file(os.path.join(parent, file))
+                if hexfiledata is not None:
+                    result.append([hexfiledata, label])
 
         return result
 
     def load_data_and_labels(self, dir):
         data = self.get_all_data(dir)
         train_data = np.array(list(data[:, 0]), dtype=np.float32)
+        print(data.shape)
         #归一化
         train_data = np.true_divide(train_data, 256)
         return train_data, data[:, 1]
