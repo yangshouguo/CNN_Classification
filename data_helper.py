@@ -9,6 +9,7 @@ import os
 import numpy as np
 import re
 
+
 class DataHelper(object):
     def __init__(self):
         self.rowbyte = 4
@@ -39,7 +40,7 @@ class DataHelper(object):
         for parent, dirs, files in os.walk(directory):
             # result.append([self.read_binary_from_file(filez), label])
             for file in files:
-                hexfiledata = self.read_hex_from_file(os.path.join(parent, file))
+                hexfiledata = self.read_binary_from_file(os.path.join(parent, file))
                 if hexfiledata is not None:
                     result.append([hexfiledata, label])
 
@@ -49,31 +50,35 @@ class DataHelper(object):
         data = self.get_all_data(dir)
         train_data = np.array(list(data[:, 0]), dtype=np.float32)
         print(data.shape)
-        #归一化
-        train_data = np.true_divide(train_data, 256)
+        # 归一化
+        # train_data = np.true_divide(train_data, 1)
         return train_data, data[:, 1]
 
-    def read_binary_from_file(self, file_path, rowbyte=4, filesize=4096):
+    def read_binary_from_file(self, file_path, rowbyte=4, min_row=100, rows=1024):
         # file_path: 二进制文件的路径
         # rowbyte: 每一行的字节数
-        # filesize : 文件大小
+        # min_row : 最小字节行数 ( min_row * 4 )
+        # rows : 从二进制文件中提取的字节行数 ( rows * 4 )
         # 返回一个矩阵 N*32矩阵 N = 4096/32 = 128
 
         allbytevalue = []
         with open(file_path, 'rb') as f:
-            allbytevalue = list(bytearray(f.read(filesize)))
+            allbytevalue = list(bytearray(f.read(rows * rowbyte)))
 
         byte_array = np.array(allbytevalue)
-        return byte_array.reshape(-1, rowbyte)
+        if byte_array.size < rowbyte * rows:
+            byte_array = np.pad(byte_array, (0, rows * rowbyte - byte_array.size), 'constant')
+        return byte_array.reshape(rows, rowbyte)
 
-    def read_hex_from_file(self, file_path, rows = 1024, min_len = 20):
+    def read_hex_from_file(self, file_path, rows=1024, min_len=100, fromMid=True):
         # file_path: 二进制文件的路径
         # rows : 最多读取文件的行数，即二进制文件的指令长度
         # min_len ： 文件包含的最少的指令长度，如果少于这个长度，丢弃该文件
+        # fromMid : 从二进制文件的中间部分开始读，如果文件长度大于1024行
 
         data_4byte = []
         readed_lines = rows
-        byte_len = 4 # 每一行4个字节
+        byte_len = 4  # 每一行4个字节
         with open(file_path, 'r') as f:
             lines = f.readlines()
             if len(lines) < min_len:
@@ -81,7 +86,6 @@ class DataHelper(object):
 
             if rows > len(lines):
                 readed_lines = len(lines)
-
 
             for index in range(readed_lines):
                 hexdata = lines[index].strip()
@@ -93,7 +97,7 @@ class DataHelper(object):
 
                 split_integer = []
                 for byte_hex in split_data:
-                    split_integer.append(int('0x'+byte_hex, base=16))
+                    split_integer.append(int('0x' + byte_hex, base=16))
 
                 if len(split_integer) < byte_len:
                     n_split_integer = np.zeros(byte_len)
@@ -108,10 +112,6 @@ class DataHelper(object):
                 return fill_data
 
         return np.array(data_4byte).reshape((-1, byte_len))
-
-
-
-
 
     def batch_iter(self, data, batch_size, num_epochs, shuffle=True):
         """
@@ -135,9 +135,9 @@ class DataHelper(object):
 
 def test():
     dh = DataHelper()
-    x, y = dh.load_data_and_labels("../hex_dataset/")
+    data = dh.load_data_and_labels('../dataset_singlefunc/')
 
-    print(y)
+    print('test')
 
 
 if __name__ == '__main__':
