@@ -8,7 +8,7 @@ from TextClassif import TextCNN
 from tensorflow.contrib import learn
 
 tf.flags.DEFINE_float("dev_sample_percentage", .2, "Percentage of the training data to use for validation (default is 0.2)")
-tf.flags.DEFINE_string("data_file", "../hex_dataset/ARM/",
+tf.flags.DEFINE_string("data_file", "../dataset_singlefunc/",
                        "Data source for the data.")
 # tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity.neg",
 #                        "Data source for the negative data.")
