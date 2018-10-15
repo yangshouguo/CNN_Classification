@@ -72,7 +72,10 @@ class Classifier(object):
             print(' -Os ')
 
 
-        pass
+def GenerateBinaryData(fromfile, tofile):
+    cmd = './extract_text_section {} > {}'.format(fromfile, tofile)
+    os.system(cmd)
+
 
 if __name__ == '__main__':
     #参数
@@ -90,7 +93,14 @@ if __name__ == '__main__':
 
         file_path = args.file
         print(file_path)
-        inputx = datahelper.read_binary_from_file(file_path)
+
+        #加载数据集
+        tmpfile = file_path+'.bin'
+        GenerateBinaryData(file_path, tmpfile)
+        inputx = datahelper.read_binary_from_file(tmpfile)
+        if os.path.exists(tmpfile):
+            os.remove(tmpfile)
+
         cla.predict(inputx.reshape(-1,1024,4))
 
 
