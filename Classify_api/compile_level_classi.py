@@ -7,7 +7,7 @@
 # @intro:  加载之前训练好的分类模型，对输入的数据进行预测分类
 import tensorflow as tf
 import os
-
+import argparse
 
 class Classifier(object):
 
@@ -59,8 +59,18 @@ if __name__ == '__main__':
     cla = Classifier('./checkpoints/model-30.meta')
     from data_helper import DataHelper
     datahelper = DataHelper()
-    file_path = './ps'
-    inputx = datahelper.read_binary_from_file(file_path)
-    cla.predict(inputx.reshape(-1,1024,4))
+
+    #参数
+    ArgParse = argparse.ArgumentParser(description="本脚本加载训练好的模型，用于5分类编译优化选项识别")
+    ArgParse.add_argument('-f','--file',help="指定待识别编译优化选项的二进制文件的路径")
+
+    args = ArgParse.parse_args()
+
+    if args.file:
+
+        file_path = args.file
+        print(file_path)
+        inputx = datahelper.read_binary_from_file(file_path)
+        cla.predict(inputx.reshape(-1,1024,4))
 
 
