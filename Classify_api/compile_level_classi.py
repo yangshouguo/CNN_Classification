@@ -9,6 +9,11 @@ import tensorflow as tf
 import os
 import argparse
 
+#设置tf的log日志等级
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+import sys
+sys.path.append('..')
 
 class Classifier(object):
 
