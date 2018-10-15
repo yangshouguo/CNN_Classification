@@ -9,6 +9,7 @@ import tensorflow as tf
 import os
 import argparse
 
+
 class Classifier(object):
 
     def __init__(self, model_dir):
@@ -51,20 +52,34 @@ class Classifier(object):
 
         result = self._sess.run(self._output, feed_dict={self._inputx:inputx, self._dropout:1.0})
 
-        print('predict:' + str(result[0]))
+        print('model predict output:' + str(result[0]))
+
+        print('该文件的编译优化选项为',)
+        if result[0] == 0:
+            print(' -O0 ')
+        elif result[0] == 1:
+            print(' -O1 ')
+        elif result[0] == 2:
+            print(' -O2 ')
+        elif result[0] == 3:
+            print(' -O3 ')
+        else:
+            print(' -Os ')
+
 
         pass
 
 if __name__ == '__main__':
+    #参数
+    ArgParse = argparse.ArgumentParser(description="本脚本加载训练好的模型，用于5分类编译优化选项识别")
+    ArgParse.add_argument('-f','--file',help="指定待识别编译优化选项的二进制文件的路径")
+    args = ArgParse.parse_args()
+
     cla = Classifier('./checkpoints/model-30.meta')
     from data_helper import DataHelper
     datahelper = DataHelper()
 
-    #参数
-    ArgParse = argparse.ArgumentParser(description="本脚本加载训练好的模型，用于5分类编译优化选项识别")
-    ArgParse.add_argument('-f','--file',help="指定待识别编译优化选项的二进制文件的路径")
 
-    args = ArgParse.parse_args()
 
     if args.file:
 
