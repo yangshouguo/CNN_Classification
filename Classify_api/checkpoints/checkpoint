@@ -1,4 +1,0 @@
-model_checkpoint_path: "/Users/shouguoyang/study/所里研究工作/编译优化选项识别/CNN_Classification/Classify_api/checkpoints/model-30"
-all_model_checkpoint_paths: "/Users/shouguoyang/study/所里研究工作/编译优化选项识别/CNN_Classification/Classify_api/checkpoints/model-10"
-all_model_checkpoint_paths: "/Users/shouguoyang/study/所里研究工作/编译优化选项识别/CNN_Classification/Classify_api/checkpoints/model-20"
-all_model_checkpoint_paths: "/Users/shouguoyang/study/所里研究工作/编译优化选项识别/CNN_Classification/Classify_api/checkpoints/model-30"
