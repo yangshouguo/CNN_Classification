@@ -1,4 +1,4 @@
-model_checkpoint_path: "/Users/shouguoyang/study/\346\211\200\351\207\214\347\240\224\347\251\266\345\267\245\344\275\234/\347\274\226\350\257\221\344\274\230\345\214\226\351\200\211\351\241\271\350\257\206\345\210\253/CNN_Classification/runs/1532416534/checkpoints/model-30"
-all_model_checkpoint_paths: "/Users/shouguoyang/study/\346\211\200\351\207\214\347\240\224\347\251\266\345\267\245\344\275\234/\347\274\226\350\257\221\344\274\230\345\214\226\351\200\211\351\241\271\350\257\206\345\210\253/CNN_Classification/runs/1532416534/checkpoints/model-10"
-all_model_checkpoint_paths: "/Users/shouguoyang/study/\346\211\200\351\207\214\347\240\224\347\251\266\345\267\245\344\275\234/\347\274\226\350\257\221\344\274\230\345\214\226\351\200\211\351\241\271\350\257\206\345\210\253/CNN_Classification/runs/1532416534/checkpoints/model-20"
-all_model_checkpoint_paths: "/Users/shouguoyang/study/\346\211\200\351\207\214\347\240\224\347\251\266\345\267\245\344\275\234/\347\274\226\350\257\221\344\274\230\345\214\226\351\200\211\351\241\271\350\257\206\345\210\253/CNN_Classification/runs/1532416534/checkpoints/model-30"
+model_checkpoint_path: "/Users/shouguoyang/study/所里研究工作/编译优化选项识别/CNN_Classification/Classify_api/checkpoints/model-30"
+all_model_checkpoint_paths: "/Users/shouguoyang/study/所里研究工作/编译优化选项识别/CNN_Classification/Classify_api/checkpoints/model-10"
+all_model_checkpoint_paths: "/Users/shouguoyang/study/所里研究工作/编译优化选项识别/CNN_Classification/Classify_api/checkpoints/model-20"
+all_model_checkpoint_paths: "/Users/shouguoyang/study/所里研究工作/编译优化选项识别/CNN_Classification/Classify_api/checkpoints/model-30"

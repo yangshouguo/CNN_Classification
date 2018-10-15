@@ -8,6 +8,7 @@
 import tensorflow as tf
 import os
 
+
 class Classifier(object):
 
     def __init__(self, model_dir):
@@ -58,7 +59,8 @@ if __name__ == '__main__':
     cla = Classifier('./checkpoints/model-30.meta')
     from data_helper import DataHelper
     datahelper = DataHelper()
-    inputx,y = datahelper.load_data_and_labels('../../dataset/ARM')
-    cla.predict(inputx[0].reshape(-1,1024,4))
+    file_path = './ps'
+    inputx = datahelper.read_binary_from_file(file_path)
+    cla.predict(inputx.reshape(-1,1024,4))
 
 
