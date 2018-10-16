@@ -40,9 +40,10 @@ class DataHelper(object):
         for parent, dirs, files in os.walk(directory):
             # result.append([self.read_binary_from_file(filez), label])
             for file in files:
-                hexfiledata = self.read_binary_from_file(os.path.join(parent, file))
-                if hexfiledata is not None:
-                    result.append([hexfiledata, label])
+                filedatas = self.read_binary_from_file(os.path.join(parent, file))
+                for hexfiledata in filedatas:
+                    if hexfiledata is not None:
+                        result.append([hexfiledata, label])
 
         return result
 
@@ -62,13 +63,24 @@ class DataHelper(object):
         # 返回一个矩阵 N*32矩阵 N = 4096/32 = 128
 
         allbytevalue = []
-        with open(file_path, 'rb') as f:
-            allbytevalue = list(bytearray(f.read(rows * rowbyte)))
 
-        byte_array = np.array(allbytevalue)
+        #读取所有字节内容
+        # 将所有字节内容分成多个 rows * rowbyte 的numpy数组并返回
+        with open(file_path, 'rb') as f:
+            allbytevalue = list(bytearray(f.read()))
+
+        seg_length = rowbyte*rows
+        segs = int(len(allbytevalue)/seg_length)
+
+        byte_arrays = []
+        for i in range(segs):
+            byte_arrays.append(np.array(allbytevalue[i*seg_length:(i+1)*seg_length]).reshape(rows, rowbyte))
+
+        byte_array = np.array(allbytevalue[segs*seg_length:])
         if byte_array.size < rowbyte * rows:
             byte_array = np.pad(byte_array, (0, rows * rowbyte - byte_array.size), 'constant')
-        return byte_array.reshape(rows, rowbyte)
+        byte_arrays.append(byte_array.reshape(rows, rowbyte))
+        return byte_arrays
 
     def read_hex_from_file(self, file_path, rows=1024, min_len=100, fromMid=True):
         # file_path: 二进制文件的路径
