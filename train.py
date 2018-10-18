@@ -15,7 +15,7 @@ tf.flags.DEFINE_string("data_file", "../dataset_singlefunc/",
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 4, "Dimensionality of character embedding (default: 4)")
-tf.flags.DEFINE_string("filter_sizes", "3,4,5,6", "Comma-separated filter sizes (default: '3,4,5,6')")
+tf.flags.DEFINE_string("filter_sizes", "3,4,32,64", "Comma-separated filter sizes (default: '3,4,5,6')")
 tf.flags.DEFINE_integer("num_filters", 64, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.8, "Dropout keep probability (default: 0.8)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 0.0)")
@@ -23,9 +23,9 @@ tf.flags.DEFINE_integer("hidden_dim", 64, "hidden layer dimension default(500)")
 
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
-tf.flags.DEFINE_integer("num_epochs", 200, "Number of training epochs (default: 200)")
-tf.flags.DEFINE_integer("evaluate_every", 100, "Evaluate model on dev set after this many steps (default: 100)")
-tf.flags.DEFINE_integer("checkpoint_every", 10, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("num_epochs", 100, "Number of training epochs (default: 200)")
+tf.flags.DEFINE_integer("evaluate_every", 1000, "Evaluate model on dev set after this many steps (default: 1000)")
+tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 20, "Number of checkpoints to store (default: 20)")
 
 # Misc Parameters
@@ -178,8 +178,7 @@ def train(x_train, y_train, x_dev, y_dev):
         #Generate batches
         batches = data_helper.batch_iter(list(zip(x_train, y_train)),FLAGS.batch_size,
                                               FLAGS.num_epochs)
-        #dev batches
-        dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1, shuffle=False)
+
 
         #Training loop. For each batch...
         for batch in batches:
@@ -189,7 +188,8 @@ def train(x_train, y_train, x_dev, y_dev):
 
             if current_step % FLAGS.evaluate_every == 0:
                 print("\nEvaluation:")
-
+                # dev batches
+                dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1, shuffle=False)
                 acc_array = []
                 for dev_batch in dev_batches:
                     x_batch, y_batch = zip(*dev_batch)
@@ -202,7 +202,8 @@ def train(x_train, y_train, x_dev, y_dev):
                 print("Saved model chechpoint to{}\n".format(path))
 
         #testing
-
+        #dev batches
+        dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1, shuffle=False)
         acc_array = []
         for dev_batch in dev_batches:
             x_batch, y_batch = zip(*dev_batch)
