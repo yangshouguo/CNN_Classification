@@ -189,10 +189,13 @@ def train(x_train, y_train, x_dev, y_dev):
 
             if current_step % FLAGS.evaluate_every == 0:
                 print("\nEvaluation:")
-                for batch_dev in dev_batches:
-                    x_dev_batch, y_dev_batch = zip(*batch_dev)
-                    dev_step(x_dev_batch, y_dev_batch, writer=dev_summary_writer)
-                    print("")
+
+                acc_array = []
+                for dev_batch in dev_batches:
+                    x_batch, y_batch = zip(*dev_batch)
+                    acc_array.append(dev_step(x_batch, y_batch))
+
+                print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))))
 
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
