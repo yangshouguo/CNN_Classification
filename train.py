@@ -178,6 +178,8 @@ def train(x_train, y_train, x_dev, y_dev):
         #Generate batches
         batches = data_helper.batch_iter(list(zip(x_train, y_train)),FLAGS.batch_size,
                                               FLAGS.num_epochs)
+        #dev batches
+        dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1, shuffle=False)
 
         #Training loop. For each batch...
         for batch in batches:
@@ -187,15 +189,17 @@ def train(x_train, y_train, x_dev, y_dev):
 
             if current_step % FLAGS.evaluate_every == 0:
                 print("\nEvaluation:")
-                dev_step(x_dev[0:FLAGS.batch_size], y_dev[0:FLAGS.batch_size], writer=dev_summary_writer)
-                print("")
+                for batch_dev in dev_batches:
+                    x_dev_batch, y_dev_batch = zip(*batch_dev)
+                    dev_step(x_dev_batch, y_dev_batch, writer=dev_summary_writer)
+                    print("")
 
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
                 print("Saved model chechpoint to{}\n".format(path))
 
         #testing
-        dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1, shuffle=False)
+
         acc_array = []
         for dev_batch in dev_batches:
             x_batch, y_batch = zip(*dev_batch)
