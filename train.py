@@ -90,7 +90,8 @@ def train(x_train, y_train, x_dev, y_dev):
                 # vocabsize=len(vocab_processor.vocabulary_),
                 embedding_size= FLAGS.embedding_dim,
                 filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
-                num_filters=FLAGS.num_filters
+                num_filters=FLAGS.num_filters,
+                position_embedding=True
             )
         global_step = tf.Variable(0, name='global_step', trainable=False)
         optimizer = tf.train.AdamOptimizer(1e-3) #learning rate
