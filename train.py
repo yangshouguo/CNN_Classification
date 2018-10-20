@@ -4,8 +4,8 @@ import os
 import time
 import datetime
 from data_helper import DataHelper
-from TextClassif import TextCNN
-from tensorflow.contrib import learn
+from Optimization_Class import TextCNN
+
 
 tf.flags.DEFINE_float("dev_sample_percentage", .2, "Percentage of the training data to use for validation (default is 0.2)")
 tf.flags.DEFINE_string("data_file", "../dataset_singlefunc/",
