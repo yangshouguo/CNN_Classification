@@ -15,7 +15,7 @@ tf.flags.DEFINE_string("data_file", "../dataset_singlefunc/",
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 4, "Dimensionality of character embedding (default: 4)")
-tf.flags.DEFINE_string("filter_sizes", "3,4,32,64", "Comma-separated filter sizes (default: '3,4,5,6')")
+tf.flags.DEFINE_string("filter_sizes", "3,4,64,128,512", "Comma-separated filter sizes (default: '3,4,5,6')")
 tf.flags.DEFINE_integer("num_filters", 64, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.8, "Dropout keep probability (default: 0.8)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 0.0)")
@@ -72,7 +72,7 @@ def preprocess():
     # print("Vocabulary Size: {:d}".format(len(vocab_processor.vocabulary_)))
     # print("Train/Dev split: {:d}/{:d}".format(len(y_train), len(y_dev)))
     return x_train, y_train, x_dev, y_dev
-
+import datetime
 def train(x_train, y_train, x_dev, y_dev):
 
     with tf.Graph().as_default():
@@ -110,7 +110,7 @@ def train(x_train, y_train, x_dev, y_dev):
                 grad_summaries.append(sparsity_summary)
         grad_summaries_merged = tf.summary.merge(grad_summaries)
 
-        timestamp = str(int(time.time()))
+        timestamp = str(datetime.datetime.now()).replace(' ','-')
         out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", timestamp))
         print('wirting to {}\n'.format(out_dir))
 
@@ -142,7 +142,17 @@ def train(x_train, y_train, x_dev, y_dev):
         # Initialize all variables
         sess.run(tf.global_variables_initializer())
 
-        import datetime
+        def get_num_params():
+            from functools import reduce
+            from operator import mul
+            num_params = 0
+            for var in tf.trainable_variables():
+                shape = var.get_shape()
+                num_params+= reduce(mul, [dim.value for dim in shape], 1)
+
+            return num_params
+
+
         def train_step(x_batch, y_batch):
             """
             A single training step
@@ -162,6 +172,7 @@ def train(x_train, y_train, x_dev, y_dev):
         def dev_step(x_batch, y_batch, writer= None
                        ):
 
+
             feed_dict = {cnn.input_x:x_batch, cnn.input_y:y_batch,
                          cnn.dropout_keep_prob:1.0}
 
@@ -180,6 +191,7 @@ def train(x_train, y_train, x_dev, y_dev):
         batches = data_helper.batch_iter(list(zip(x_train, y_train)),FLAGS.batch_size,
                                               FLAGS.num_epochs)
 
+        print('model paramenter number is {}'.format(get_num_params()))
 
         #Training loop. For each batch...
         for batch in batches:
@@ -206,10 +218,12 @@ def train(x_train, y_train, x_dev, y_dev):
         #dev batches
         dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1, shuffle=False)
         acc_array = []
+        time_start = datetime.datetime.now()
         for dev_batch in dev_batches:
             x_batch, y_batch = zip(*dev_batch)
             acc_array.append(dev_step(x_batch, y_batch))
-
+        time_end = datetime.datetime.now()
+        print('forward computing {} times cost {} seconds'.format(len(acc_array), (time_end-time_start).seconds))
         print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))))
 
 
