@@ -203,12 +203,17 @@ def train(x_train, y_train, x_dev, y_dev):
                 print("\nEvaluation:")
                 # dev batches
                 dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1, shuffle=False)
+                time_start = datetime.datetime.now()
                 acc_array = []
                 for dev_batch in dev_batches:
                     x_batch, y_batch = zip(*dev_batch)
-                    acc_array.append(dev_step(x_batch, y_batch))
-
-                print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))))
+                    if len(x_batch) >= FLAGS.batch_size:
+                        acc_array.append(dev_step(x_batch, y_batch))
+                time_end = datetime.datetime.now()
+                print('forward computing {} times cost {} seconds'.format(len(acc_array),
+                                                                          (time_end - time_start).seconds))
+                if len(acc_array)>0:
+                    print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))))
 
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
