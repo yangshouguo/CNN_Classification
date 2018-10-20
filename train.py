@@ -15,7 +15,7 @@ tf.flags.DEFINE_string("data_file", "../dataset_singlefunc/",
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 4, "Dimensionality of character embedding (default: 4)")
-tf.flags.DEFINE_string("filter_sizes", "3,4,64,128,512", "Comma-separated filter sizes (default: '3,4,5,6')")
+tf.flags.DEFINE_string("filter_sizes", "3,4", "Comma-separated filter sizes (default: '3,4,5,6')")
 tf.flags.DEFINE_integer("num_filters", 64, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.8, "Dropout keep probability (default: 0.8)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 0.0)")
@@ -221,10 +221,12 @@ def train(x_train, y_train, x_dev, y_dev):
         time_start = datetime.datetime.now()
         for dev_batch in dev_batches:
             x_batch, y_batch = zip(*dev_batch)
-            acc_array.append(dev_step(x_batch, y_batch))
+            if len(x_batch) >= FLAGS.batch_size:
+                acc_array.append(dev_step(x_batch, y_batch))
         time_end = datetime.datetime.now()
         print('forward computing {} times cost {} seconds'.format(len(acc_array), (time_end-time_start).seconds))
-        print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))))
+        if len(acc_array) > 0:
+            print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))))
 
 
 def main(arg):
