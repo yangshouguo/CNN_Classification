@@ -22,9 +22,9 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 
 tf.flags.DEFINE_integer("hidden_dim", 64, "hidden layer dimension default(500)")
 
 # Training parameters
-tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("batch_size", 2, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 100, "Number of training epochs (default: 200)")
-tf.flags.DEFINE_integer("evaluate_every", 1000, "Evaluate model on dev set after this many steps (default: 1000)")
+tf.flags.DEFINE_integer("evaluate_every", 10, "Evaluate model on dev set after this many steps (default: 1000)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 20, "Number of checkpoints to store (default: 20)")
 
@@ -176,8 +176,8 @@ def train(x_train, y_train, x_dev, y_dev):
             feed_dict = {cnn.input_x:x_batch, cnn.input_y:y_batch,
                          cnn.dropout_keep_prob:1.0}
 
-            step, summaries, loss, accuracy = sess.run(
-                [global_step, dev_summary_op, cnn.loss, cnn.accuracy],
+            step, summaries, loss, accuracy, prediction = sess.run(
+                [global_step, dev_summary_op, cnn.loss, cnn.accuracy, cnn.predictions],
                 feed_dict
             )
             time_str = datetime.datetime.now().isoformat()
@@ -185,7 +185,7 @@ def train(x_train, y_train, x_dev, y_dev):
             if writer:
                 writer.add_summary(summaries, step)
 
-            return accuracy
+            return accuracy, prediction
 
         #Generate batches
         batches = data_helper.batch_iter(list(zip(x_train, y_train)),FLAGS.batch_size,
@@ -205,15 +205,27 @@ def train(x_train, y_train, x_dev, y_dev):
                 dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1, shuffle=False)
                 time_start = datetime.datetime.now()
                 acc_array = []
+                #单个类别准确率
+                acc_single = {0:[0,0],1:[0,0],2:[0,0],3:[0,0],4:[0,0]} #元组第一个表示该类别总量，第二个元素表示预测正确数量
+
                 for dev_batch in dev_batches:
                     x_batch, y_batch = zip(*dev_batch)
                     if len(x_batch) >= FLAGS.batch_size:
-                        acc_array.append(dev_step(x_batch, y_batch))
+                        acc, pres = dev_step(x_batch, y_batch)
+                        acc_array.append(acc)
+                        for i in range(len(pres)):
+                            label = np.argmax(y_batch[i])
+                            acc_single[label][0]+=1
+                            if pres[i] == label:
+                                acc_single[label][1]+=1
+
                 time_end = datetime.datetime.now()
                 print('forward computing {} times cost {} seconds'.format(len(acc_array),
                                                                           (time_end - time_start).seconds))
+
                 if len(acc_array)>0:
-                    print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))))
+                    print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))), end='------------')
+                    print(list(map(lambda x: x[1] * 1.0 / x[0] if not x[0] ==0 else 0, acc_single.values())))
 
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
