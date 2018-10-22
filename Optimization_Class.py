@@ -11,11 +11,11 @@ import numpy as np
 
 class TextCNN(object):
     def __init__(self
-                 , seq_len, seq_width, num_class, hidden_size, embedding_size, filter_sizes, num_filters, vocabsize=pow(2,8), position_embedding=False):
+                 , seq_len, seq_width, num_class, hidden_size, embedding_size, filter_sizes, num_filters, vocabsize=pow(2,8), position_embedding=False, batch_size = 64):
         pass
 
-        self.input_x = tf.placeholder(tf.int32, [None, seq_len, seq_width], name='inputx')
-        self.input_y = tf.placeholder(tf.float32, [None, num_class], name='inputy')
+        self.input_x = tf.placeholder(tf.int32, [batch_size, seq_len, seq_width], name='inputx')
+        self.input_y = tf.placeholder(tf.float32, [batch_size, num_class], name='inputy')
         self.dropout_keep_prob = tf.placeholder(tf.float32, name='dropout_keep_prob')
         self._hidden_size = hidden_size
 
@@ -32,11 +32,12 @@ class TextCNN(object):
             # self.embedding_chars_expanded = tf.expand_dims(self.input_x, -1)
 
         if position_embedding:
-            lengths = tf.ones(seq_len, dtype=tf.int32) * seq_width
-            self.position_embed = self._create_position_embedding(embedding_dim=self.input_x.get_shape().as_list()[-1],
+            lengths = tf.ones(batch_size, dtype=tf.int32) * seq_len
+            self.position_embed = self._create_position_embedding(embedding_dim=seq_width,
                                                              num_positions=seq_len,
                                                              lengths=lengths,
-                                                             maxlen=tf.shape(self.input_x)[2])
+                                                             maxlen=seq_len)
+            self.position_embed = tf.reshape(tf.tile(self.position_embed, [1,1,embedding_size]), [batch_size, seq_len, seq_width, -1])
             self.embedding_chars_expanded = tf.add(self.position_embed, self.embedding_chars_expanded)
 
         # Convolutional and max-pooling layers
