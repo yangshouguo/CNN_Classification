@@ -20,7 +20,7 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 
 tf.flags.DEFINE_integer("hidden_dim", 1024, "hidden layer dimension default(500)")
 
 # Training parameters
-tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("batch_size", 2, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 100, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 1000, "Evaluate model on dev set after this many steps (default: 1000)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
@@ -89,7 +89,8 @@ def train(x_train, y_train, x_dev, y_dev):
                 embedding_size= FLAGS.embedding_dim,
                 filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
                 num_filters=FLAGS.num_filters,
-                position_embedding=True
+                position_embedding=True,
+                batch_size= FLAGS.batch_size
             )
         global_step = tf.Variable(0, name='global_step', trainable=False)
         optimizer = tf.train.AdamOptimizer(1e-3) #learning rate
@@ -155,6 +156,9 @@ def train(x_train, y_train, x_dev, y_dev):
             """
             A single training step
             """
+            if len(x_batch) < FLAGS.batch_size:
+                return
+
             feed_dict = {
                 cnn.input_x: x_batch,
                 cnn.input_y: y_batch,

@@ -14,8 +14,8 @@ class TextCNN(object):
                  , seq_len, seq_width, num_class, hidden_size, embedding_size, filter_sizes, num_filters, vocabsize=pow(2,8), position_embedding=False, batch_size = 64):
         pass
 
-        self.input_x = tf.placeholder(tf.int32, [batch_size, seq_len, seq_width], name='inputx')
-        self.input_y = tf.placeholder(tf.float32, [batch_size, num_class], name='inputy')
+        self.input_x = tf.placeholder(tf.int32, [None, seq_len, seq_width], name='inputx')
+        self.input_y = tf.placeholder(tf.float32, [None, num_class], name='inputy')
         self.dropout_keep_prob = tf.placeholder(tf.float32, name='dropout_keep_prob')
         self._hidden_size = hidden_size
 
