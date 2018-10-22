@@ -8,23 +8,23 @@ from Optimization_Class import TextCNN
 
 
 tf.flags.DEFINE_float("dev_sample_percentage", .2, "Percentage of the training data to use for validation (default is 0.2)")
-tf.flags.DEFINE_string("data_file", "../dataset_singlefunc/",
+tf.flags.DEFINE_string("data_file", "../dataset_decreaseO23/",
                        "Data source for the data.")
 # tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity.neg",
 #                        "Data source for the negative data.")
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 4, "Dimensionality of character embedding (default: 4)")
-tf.flags.DEFINE_string("filter_sizes", "3,4", "Comma-separated filter sizes (default: '3,4,5,6')")
+tf.flags.DEFINE_string("filter_sizes", "3,4,64,100", "Comma-separated filter sizes (default: '3,4,5,6')")
 tf.flags.DEFINE_integer("num_filters", 64, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.8, "Dropout keep probability (default: 0.8)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 0.0)")
 tf.flags.DEFINE_integer("hidden_dim", 64, "hidden layer dimension default(500)")
 
 # Training parameters
-tf.flags.DEFINE_integer("batch_size", 2, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 100, "Number of training epochs (default: 200)")
-tf.flags.DEFINE_integer("evaluate_every", 10, "Evaluate model on dev set after this many steps (default: 1000)")
+tf.flags.DEFINE_integer("evaluate_every", 1000, "Evaluate model on dev set after this many steps (default: 1000)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 20, "Number of checkpoints to store (default: 20)")
 
@@ -207,7 +207,6 @@ def train(x_train, y_train, x_dev, y_dev):
                 acc_array = []
                 #单个类别准确率
                 acc_single = {0:[0,0],1:[0,0],2:[0,0],3:[0,0],4:[0,0]} #元组第一个表示该类别总量，第二个元素表示预测正确数量
-
                 for dev_batch in dev_batches:
                     x_batch, y_batch = zip(*dev_batch)
                     if len(x_batch) >= FLAGS.batch_size:
@@ -226,6 +225,7 @@ def train(x_train, y_train, x_dev, y_dev):
                 if len(acc_array)>0:
                     print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))), end='------------')
                     print(list(map(lambda x: x[1] * 1.0 / x[0] if not x[0] ==0 else 0, acc_single.values())))
+                    print(acc_single)
 
             if current_step % FLAGS.checkpoint_every == 0:
                 path = saver.save(sess, checkpoint_prefix, global_step=current_step)
