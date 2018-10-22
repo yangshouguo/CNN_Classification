@@ -33,11 +33,11 @@ class TextCNN(object):
 
         if position_embedding:
             lengths = tf.ones(seq_len, dtype=tf.int32) * seq_width
-            position_embed = self._create_position_embedding(embedding_dim=self.input_x.get_shape().as_list()[-1],
+            self.position_embed = self._create_position_embedding(embedding_dim=self.input_x.get_shape().as_list()[-1],
                                                              num_positions=seq_len,
                                                              lengths=lengths,
                                                              maxlen=tf.shape(self.input_x)[2])
-            self.embedding_chars_expanded = tf.add(position_embed, self.embedding_chars_expanded)
+            self.embedding_chars_expanded = tf.add(self.position_embed, self.embedding_chars_expanded)
 
         # Convolutional and max-pooling layers
         # use filters of differents sizes
@@ -57,14 +57,14 @@ class TextCNN(object):
 
                 h = tf.nn.relu(tf.nn.bias_add(conv, b), name='relu')
                 # 添加一维卷积
-                conv_1d_filter_shape = [filter_size, h.shape.as_list()[-1], h.shape.as_list()[-1]]
-                conv_1d_W = tf.Variable(tf.random_normal(conv_1d_filter_shape, stddev=0.1), name="conv_1d_W")
-
-                conv_1d_op = tf.nn.conv1d(tf.reshape(h, (-1, h.shape[1], h.shape[-1])), conv_1d_W, stride=1,
-                                          padding="SAME", name='conv_1d_op')
-                h = tf.reshape(conv_1d_op, shape=(-1, conv_1d_op.shape[1], 1, conv_1d_op.shape[-1]))
+                # conv_1d_filter_shape = [filter_size, h.shape.as_list()[-1], h.shape.as_list()[-1]]
+                # conv_1d_W = tf.Variable(tf.random_normal(conv_1d_filter_shape, stddev=0.1), name="conv_1d_W")
+                #
+                # conv_1d_op = tf.nn.conv1d(tf.reshape(h, (-1, h.shape[1], h.shape[-1])), conv_1d_W, stride=1,
+                #                           padding="SAME", name='conv_1d_op')
+                # h = tf.reshape(conv_1d_op, shape=(-1, conv_1d_op.shape[1], 1, conv_1d_op.shape[-1]))
                 # 添加一维卷积
-                pooled = tf.nn.max_pool(h, ksize=[1, seq_len - filter_size + 1, 1, 1], #seq_len - filter_size 让卷积得到的结果变成一个单一的值
+                pooled = tf.nn.avg_pool(h, ksize=[1, seq_len - filter_size + 1, 1, 1], #seq_len - filter_size 让卷积得到的结果变成一个单一的值
                                         strides=[1, 1, 1, 1],
                                         padding="VALID",
                                         name='pool')
@@ -81,15 +81,15 @@ class TextCNN(object):
             b_d = tf.Variable(tf.constant(0.2, shape=[self._hidden_size]),name='b_d')
             self.hidden_out = tf.sigmoid(tf.nn.xw_plus_b(self.h_drop, W_d, b_d))
 
-        with tf.name_scope("dense_layer2"):
-            W_d2 = tf.Variable(tf.truncated_normal([self._hidden_size, self._hidden_size], stddev=0.1), name="W_d2")
-            b_d2 = tf.Variable(tf.constant(0.2, shape=[self._hidden_size]),name='b_d2')
-            self.hidden_out2 = tf.sigmoid(tf.nn.xw_plus_b(self.hidden_out, W_d2, b_d2))
+        # with tf.name_scope("dense_layer2"):
+        #     W_d2 = tf.Variable(tf.truncated_normal([self._hidden_size, self._hidden_size], stddev=0.1), name="W_d2")
+        #     b_d2 = tf.Variable(tf.constant(0.2, shape=[self._hidden_size]),name='b_d2')
+        #     self.hidden_out2 = tf.sigmoid(tf.nn.xw_plus_b(self.hidden_out, W_d2, b_d2))
 
         with tf.name_scope('output'):
             W = tf.Variable(tf.truncated_normal([self._hidden_size, num_class], stddev=0.1), name='W')
             b = tf.Variable(tf.constant(0.1, shape=[num_class]), name="b")
-            self.scores = tf.nn.xw_plus_b(self.hidden_out2, W, b, name="scores")
+            self.scores = tf.nn.xw_plus_b(self.hidden_out, W, b, name="scores")
             self.predictions = tf.argmax(self.scores, 1, name="predictions")
 
         with tf.name_scope('loss'):
