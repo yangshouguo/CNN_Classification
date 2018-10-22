@@ -21,7 +21,7 @@ tf.flags.DEFINE_integer("hidden_dim", 1024, "hidden layer dimension default(500)
 
 # Training parameters
 tf.flags.DEFINE_integer("batch_size", 2, "Batch Size (default: 64)")
-tf.flags.DEFINE_integer("num_epochs", 100, "Number of training epochs (default: 200)")
+tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 1000, "Evaluate model on dev set after this many steps (default: 1000)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 20, "Number of checkpoints to store (default: 20)")
@@ -237,16 +237,25 @@ def train(x_train, y_train, x_dev, y_dev):
         #dev batches
         dev_batches = data_helper.batch_iter(list(zip(x_dev, y_dev)), FLAGS.batch_size, 1, shuffle=False)
         acc_array = []
+        # 单个类别准确率
+        acc_single = {0: [0, 0], 1: [0, 0], 2: [0, 0], 3: [0, 0], 4: [0, 0]}  # 元组第一个表示该类别总量，第二个元素表示预测正确数量
         time_start = datetime.datetime.now()
         for dev_batch in dev_batches:
             x_batch, y_batch = zip(*dev_batch)
             if len(x_batch) >= FLAGS.batch_size:
-                acc_array.append(dev_step(x_batch, y_batch))
+                acc, pres = dev_step(x_batch, y_batch)
+                acc_array.append(acc)
+                for i in range(len(pres)):
+                    label = np.argmax(y_batch[i])
+                    acc_single[label][0] += 1
+                    if pres[i] == label:
+                        acc_single[label][1] += 1
         time_end = datetime.datetime.now()
         print('forward computing {} times cost {} seconds'.format(len(acc_array), (time_end-time_start).seconds))
         if len(acc_array) > 0:
-            print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))))
-
+            print("average accuracy of test data is {}".format(np.mean(np.array(acc_array))), end='------------')
+            print(list(map(lambda x: x[1] * 1.0 / x[0] if not x[0] == 0 else 0, acc_single.values())))
+            print(acc_single)
 
 def main(arg):
     x_train, y_train, x_dev, y_dev = preprocess()
