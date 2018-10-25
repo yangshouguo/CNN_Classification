@@ -5,7 +5,7 @@ from data_helper import DataHelper
 
 TRAIN_FOR_RNN = True # 用于rnn训练
 POSITION_EMBEDDING = False # position embedding
-
+class_num = 5 # 类别数目
 if TRAIN_FOR_RNN:
 #RNN train
     from RNN_model import TextCNN
@@ -31,7 +31,7 @@ tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 
 tf.flags.DEFINE_integer("hidden_dim", 1024, "hidden layer dimension default(500)")
 
 # Training parameters
-tf.flags.DEFINE_integer("batch_size", 2, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 1000, "Evaluate model on dev set after this many steps (default: 1000)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
@@ -42,9 +42,9 @@ tf.flags.DEFINE_boolean("allow_soft_placement", True, "Allow device soft device 
 tf.flags.DEFINE_boolean("log_device_placement", False, "Log placement of ops on devices")
 
 FLAGS = tf.flags.FLAGS
-data_helper = DataHelper()
+data_helper = DataHelper(class_num)
 
-class_num = 5 # 类别数目
+
 
 def preprocess():
     print('loading data...')
