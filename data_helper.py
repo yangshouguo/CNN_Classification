@@ -11,23 +11,35 @@ import re
 
 
 class DataHelper(object):
-    def __init__(self):
+    def __init__(self, class_num=4):
         self.rowbyte = 4
+        self._class_num = class_num
+
         pass
 
     def get_all_data(self, directory='./dataset/ARM'):
 
         all_result = []
-        print('loading data {} from {}'.format("O0", directory))
-        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O0'), label=0)
-        print('loading data {} from {}'.format("O1", directory))
-        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O1'), label=1)
-        print('loading data {} from {}'.format("O2", directory))
-        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O2'), label=2)
-        print('loading data {} from {}'.format("O3", directory))
-        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O3'), label=3)
-        print('loading data {} from {}'.format("Os", directory))
-        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'Os'), label=4)
+        label = 0
+
+        print('loading data {} from {} : label {}'.format("O0", directory, label))
+        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O0'), label=label)
+        label+=1
+
+        print('loading data {} from {} : label {}'.format("O1", directory, label))
+        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O1'), label=label)
+        label += 1
+        print('loading data {} from {} : label {}'.format("O2", directory, label))
+        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O2'), label=label)
+        if self._class_num ==5 :
+            label+=1
+
+        print('loading data {} from {} : label {}'.format("O3", directory, label))
+        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'O3'), label=label)
+        label+=1
+        print('loading data {} from {} : label {}'.format("Os", directory, label))
+
+        all_result += self.get_certain_compile_level_with_label(os.path.join(directory, 'Os'), label=label)
 
         return np.array(all_result)
 
@@ -146,8 +158,8 @@ class DataHelper(object):
 
 
 def test():
-    dh = DataHelper()
-    # data = dh.load_data_and_labels('../dataset_singlefunc/')
+    dh = DataHelper(5)
+    data = dh.load_data_and_labels('../dataset_singlefunc/')
 
     print({0:[1,2,3]})
 
