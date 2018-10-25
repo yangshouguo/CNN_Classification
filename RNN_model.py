@@ -123,29 +123,32 @@ class TextCNN(object):
 
         # batch_size = tf.shape(inputx)[0]
         # time_step = tf.shape(inputx)[1]
-        inputx = tf.reshape(inputx, [batch_size, -1, 1])
-        # 双向rnn
-        lstm_fw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, name='lstm_fw_cell_{}'.format(time_step))
-        lstm_bw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, name='lstm_bw_cell_{}'.format(time_step))
+        with tf.name_scope("rnn_{}".format(time_step)):
+            inputx = tf.reshape(inputx, [batch_size, -1, 1])
+            # 双向rnn
+            lstm_fw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE)
+            lstm_bw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE)
 
-        init_fw = lstm_fw_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
-        init_bw = lstm_bw_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
+            init_fw = lstm_fw_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
+            init_bw = lstm_bw_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
 
-        weights = tf.Variable(tf.truncated_normal([2 * hidden_size, out_size], stddev=0.1), dtype=tf.float32,
-                              name="lstm_weights_{}".format(time_step))
-        biases = tf.Variable(tf.constant(0.1, shape=[out_size]), dtype=tf.float32, name="lstm_weights_{}".format(time_step))
+            weights = tf.get_variable("lstm_weights_{}".format(time_step), [2 * hidden_size, out_size], dtype=tf.float32,
+                                      initializer=tf.random_normal_initializer(mean=0, stddev=1)
+                                  )
+            biases = tf.get_variable("lstm_biases_{}".format(time_step), [out_size], dtype=tf.float32,
+                                     initializer=tf.random_normal_initializer(mean=0, stddev=1))
 
-        outputs, final_states = tf.nn.bidirectional_dynamic_rnn(lstm_fw_cell,
-                                                                lstm_bw_cell,
-                                                                inputs=inputx,
-                                                                initial_state_fw=init_fw,
-                                                                initial_state_bw=init_bw)
+            outputs, final_states = tf.nn.bidirectional_dynamic_rnn(lstm_fw_cell,
+                                                                    lstm_bw_cell,
+                                                                    inputs=inputx,
+                                                                    initial_state_fw=init_fw,
+                                                                    initial_state_bw=init_bw)
 
-        foutputs = tf.concat(outputs, 2)  # 前向和后向的状态连接起来
-        state_out = tf.matmul(tf.reshape(foutputs, [-1, 2 * hidden_size]), weights) + biases
-        logits = tf.reshape(state_out, [batch_size, time_step, out_size])
+            foutputs = tf.concat(outputs, 2)  # 前向和后向的状态连接起来
+            state_out = tf.matmul(tf.reshape(foutputs, [-1, 2 * hidden_size]), weights) + biases
+            logits = tf.reshape(state_out, [batch_size, time_step, out_size])
 
-        return logits[:, -1, :]  # 只返回最后一个状态
+            return logits[:, -1, :]  # 只返回最后一个状态
 
     def position_encoding(self, sentence_size, embedding_size):
         """
