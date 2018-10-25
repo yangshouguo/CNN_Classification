@@ -147,9 +147,9 @@ class DataHelper(object):
 
 def test():
     dh = DataHelper()
-    data = dh.load_data_and_labels('../dataset_singlefunc/')
+    # data = dh.load_data_and_labels('../dataset_singlefunc/')
 
-    print('test')
+    print({0:[1,2,3]})
 
 
 if __name__ == '__main__':

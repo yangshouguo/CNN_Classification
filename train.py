@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import os
 from data_helper import DataHelper
-from Optimization_Class import TextCNN
+from RNN_model import TextCNN
 
 
 tf.flags.DEFINE_float("dev_sample_percentage", .2, "Percentage of the training data to use for validation (default is 0.2)")
