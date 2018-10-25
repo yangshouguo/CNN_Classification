@@ -2,8 +2,19 @@ import tensorflow as tf
 import numpy as np
 import os
 from data_helper import DataHelper
-from RNN_model import TextCNN
 
+TRAIN_FOR_RNN = True # 用于rnn训练
+POSITION_EMBEDDING = False # position embedding
+
+if TRAIN_FOR_RNN:
+#RNN train
+    from RNN_model import TextCNN
+    os.environ['CUDA_VISIBLE_DEVICES'] = '3,6'
+    filter_shapes = "3,4"
+else:
+    from Optimization_Class import TextCNN
+    os.environ['CUDA_VISIBLE_DEVICES'] = '1,2,4,5,7'
+    filter_shapes = "3,4,5,6"
 
 tf.flags.DEFINE_float("dev_sample_percentage", .2, "Percentage of the training data to use for validation (default is 0.2)")
 tf.flags.DEFINE_string("data_file", "../dataset_decreaseO23/",

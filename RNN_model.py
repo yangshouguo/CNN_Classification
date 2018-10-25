@@ -126,8 +126,8 @@ class TextCNN(object):
         with tf.name_scope("rnn_{}".format(time_step)):
             inputx = tf.reshape(inputx, [batch_size, -1, 1])
             # 双向rnn
-            lstm_fw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE)
-            lstm_bw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE)
+            lstm_fw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE , name='lstm_fw_cell_{}'.format(time_step))
+            lstm_bw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE , name='lstm_fw_cell_{}'.format(time_step))
 
             init_fw = lstm_fw_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
             init_bw = lstm_bw_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
@@ -145,10 +145,11 @@ class TextCNN(object):
                                                                     initial_state_bw=init_bw)
 
             foutputs = tf.concat(outputs, 2)  # 前向和后向的状态连接起来
-            state_out = tf.matmul(tf.reshape(foutputs, [-1, 2 * hidden_size]), weights) + biases
-            logits = tf.reshape(state_out, [batch_size, time_step, out_size])
+            lastoutput = foutputs[:,-1,:]
+            state_out = tf.matmul(tf.reshape(lastoutput, [-1, 2 * hidden_size]), weights) + biases
 
-            return logits[:, -1, :]  # 只返回最后一个状态
+
+            return state_out  # 只返回最后一个状态
 
     def position_encoding(self, sentence_size, embedding_size):
         """
