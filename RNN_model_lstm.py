@@ -98,7 +98,7 @@ class TextCNN(object):
 
     def LSTM(self, n_hidden,out_size, x):
 
-        x = tf.reshape(x, [self.batchsize, -1, self.embedding_size])
+        x = tf.reshape(x, [self.batchsize, self.seq_len, -1])
 
         rnn_cell = tf.nn.rnn_cell.BasicLSTMCell(n_hidden)
 
