@@ -126,8 +126,8 @@ class TextCNN(object):
         with tf.name_scope("rnn_{}".format(time_step)):
             inputx = tf.reshape(inputx, [batch_size, time_step, -1])
             # 双向rnn
-            lstm_fw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE , name='lstm_fw_cell_{}'.format(time_step))
-            lstm_bw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE , name='lstm_fw_cell_{}'.format(time_step))
+            lstm_fw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE)
+            lstm_bw_cell = tf.nn.rnn_cell.BasicLSTMCell(hidden_size, reuse=tf.AUTO_REUSE)
 
             init_fw = lstm_fw_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
             init_bw = lstm_bw_cell.zero_state(batch_size=batch_size, dtype=tf.float32)
