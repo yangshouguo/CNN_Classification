@@ -108,7 +108,7 @@ class TextCNN(object):
         biase = tf.get_variable('lstm_b', [out_size],dtype=tf.float32, initializer=tf.random_normal_initializer(mean=0, stddev=1))
 
 
-        return tf.matmul(outputs[-1], weights) +biase
+        return tf.matmul(outputs[:,-1,:], weights) +biase
 
     def BiLSTM(self, inputx, hidden_size, out_size, batch_size, time_step):
 
