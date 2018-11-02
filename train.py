@@ -2,17 +2,17 @@ import tensorflow as tf
 import numpy as np
 import os
 from data_helper import DataHelper
-
-TRAIN_FOR_RNN = True # 用于rnn训练
+tf.reset_default_graph()
+TRAIN_FOR_RNN = False # 用于rnn训练
 POSITION_EMBEDDING = False # position embedding
 class_num = 5 # 类别数目
 if TRAIN_FOR_RNN:
 #RNN train
-    from RNN_model import TextCNN
-    os.environ['CUDA_VISIBLE_DEVICES'] = '3,6'
-    filter_shapes = "3,4"
+    from CNN_LSTM_Model import TextCNN
+    os.environ['CUDA_VISIBLE_DEVICES'] = '4,5'
+    filter_shapes = "4"
 else:
-    from Optimization_Class import TextCNN
+    from GatedCNN import TextCNN
     os.environ['CUDA_VISIBLE_DEVICES'] = '1,2,4,5,7'
     filter_shapes = "3,4,5,6"
 
@@ -24,14 +24,14 @@ tf.flags.DEFINE_string("data_file", "../dataset_decreaseO23/",
 
 # Model Hyperparameters
 tf.flags.DEFINE_integer("embedding_dim", 8, "Dimensionality of character embedding (default: 4)")
-tf.flags.DEFINE_string("filter_sizes", "3,4,64,100", "Comma-separated filter sizes (default: '3,4,5,6')")
+tf.flags.DEFINE_string("filter_sizes", filter_shapes, "Comma-separated filter sizes (default: '3,4,5,6')")
 tf.flags.DEFINE_integer("num_filters", 64, "Number of filters per filter size (default: 128)")
 tf.flags.DEFINE_float("dropout_keep_prob", 0.8, "Dropout keep probability (default: 0.8)")
 tf.flags.DEFINE_float("l2_reg_lambda", 0.0, "L2 regularization lambda (default: 0.0)")
 tf.flags.DEFINE_integer("hidden_dim", 1024, "hidden layer dimension default(500)")
 
 # Training parameters
-tf.flags.DEFINE_integer("batch_size", 64, "Batch Size (default: 64)")
+tf.flags.DEFINE_integer("batch_size", 4, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 1000, "Evaluate model on dev set after this many steps (default: 1000)")
 tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
@@ -100,7 +100,7 @@ def train(x_train, y_train, x_dev, y_dev):
                 embedding_size= FLAGS.embedding_dim,
                 filter_sizes=list(map(int, FLAGS.filter_sizes.split(","))),
                 num_filters=FLAGS.num_filters,
-                position_embedding=True,
+                position_embedding=POSITION_EMBEDDING,
                 batch_size= FLAGS.batch_size
             )
         global_step = tf.Variable(0, name='global_step', trainable=False)
