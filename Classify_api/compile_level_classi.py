@@ -8,7 +8,7 @@
 import tensorflow as tf
 import os
 import argparse
-
+import numpy as np
 #设置tf的log日志等级
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -55,21 +55,29 @@ class Classifier(object):
 
         # self._sess.run()
 
-        result = self._sess.run(self._output, feed_dict={self._inputx:inputx, self._dropout:1.0})
+        result = self._sess.run(self._output, feed_dict={self._inputx: inputx, self._dropout: 1.0})
 
-        print('model predict output:' + str(result[0]))
+        result = result.tolist()
 
-        print('该文件的编译优化选项为',)
-        if result[0] == 0:
+        # 取众数
+        count = np.bincount(result)
+        pre = np.argmax(count)
+
+        print('model predict output:' + str(pre))
+
+        print('该文件的编译优化选项为', )
+        if pre == 0:
             print(' -O0 ')
-        elif result[0] == 1:
+        elif pre == 1:
             print(' -O1 ')
-        elif result[0] == 2:
+        elif pre == 2:
             print(' -O2 ')
-        elif result[0] == 3:
+        elif pre == 3:
             print(' -O3 ')
         else:
             print(' -Os ')
+
+        return pre
 
 
 def GenerateBinaryData(fromfile, tofile):
@@ -97,7 +105,7 @@ if __name__ == '__main__':
         inputx = datahelper.read_binary_from_file(tmpfile)
         if os.path.exists(tmpfile):
             os.remove(tmpfile)
-        cla = Classifier('./checkpoints/model-30.meta')
+        cla = Classifier('./checkpoints/model-182800.meta')
         cla.predict(inputx.reshape(-1,1024,4))
 
 

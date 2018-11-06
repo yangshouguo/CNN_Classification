@@ -6,6 +6,7 @@
 # @File    : test_optimization_recog.py
 # @intro:  将一个 大于16K的文件分成4X4K的文件，分别判断每份的编译优化选项
 import tensorflow as tf
+import numpy as np
 import os
 import argparse
 
@@ -51,27 +52,39 @@ class Classifier(object):
 
         if not self._loaded:
             print('you need load model first!')
-            return
+            return 0
 
         # self._sess.run()
 
         result = self._sess.run(self._output, feed_dict={self._inputx:inputx, self._dropout:1.0})
 
-        print('model predict output:' + str(result[0]))
+        result = result.tolist()
+
+        #取众数
+        count = np.bincount(result)
+        pre = np.argmax(count)
+        #计算众数所占比例
+        rate = count[pre] / len(result)
+        print('rate : {}'.format(rate))
+
+        if rate > 0.5:
+            return 1
+
+        print('model predict output:' + str(pre))
 
         print('该文件的编译优化选项为',)
-        if result[0] == 0:
+        if pre == 0:
             print(' -O0 ')
-        elif result[0] == 1:
+        elif pre == 1:
             print(' -O1 ')
-        elif result[0] == 2:
+        elif pre == 2:
             print(' -O2 ')
-        elif result[0] == 3:
+        elif pre == 3:
             print(' -O3 ')
         else:
             print(' -Os ')
 
-        return result[0]
+        return 0
 
 
 def GenerateBinaryData(fromfile, tofile):
@@ -92,14 +105,19 @@ if __name__ == '__main__':
 
         file_path = args.file
         print(file_path)
+        cla = Classifier('./checkpoints/model-30.meta')
 
-        #加载数据集
-        tmpfile = file_path+'.bin'
-        GenerateBinaryData(file_path, tmpfile)
-        inputx = datahelper.read_binary_from_file(tmpfile)
-        if os.path.exists(tmpfile):
-            os.remove(tmpfile)
-        cla = Classifier('./checkpoints/model-182800.meta')
-        cla.predict(inputx.reshape(-1,1024,4))
+        result = []
+        with open(file_path,'r') as f:
+            file_lines = f.readlines()
+            for file_line in file_lines:
+                inputx = datahelper.read_binary_from_file(file_line.strip())
+                result.append(cla.predict(inputx.reshape(-1, 1024, 4)))
+
+        print(np.mean(result))
+        print(len(result))
+
+
+
 
 
