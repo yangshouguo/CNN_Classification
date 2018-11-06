@@ -19,8 +19,6 @@ def getFileNameFromDir(source_dir):
         for filename in filenames:
             execScript(os.path.join(parent, filename) ,os.path.split(parent)[-1], filename)
 
-    pass
-
 
 def execScript(sourcefile ,targetdir, targetfile):
     target = os.path.join(destinationdir, targetdir)

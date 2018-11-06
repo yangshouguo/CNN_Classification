@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# @Time    : 2018/7/24 下午2:50
+# @Time    : 2018/11/6 11:07 AM
 # @Author  : 杨寿国
 # @mail    : 891584158@qq.com
-# @File    : compile_level_classi.py
-# @intro:  加载之前训练好的分类模型，对输入的数据进行预测分类
+# @File    : test_optimization_recog.py
+# @intro:  将一个 大于16K的文件分成4X4K的文件，分别判断每份的编译优化选项
 import tensorflow as tf
 import os
 import argparse
@@ -71,6 +71,8 @@ class Classifier(object):
         else:
             print(' -Os ')
 
+        return result[0]
+
 
 def GenerateBinaryData(fromfile, tofile):
     cmd = './extract_text_section.sh {} > {}'.format(fromfile, tofile)
@@ -98,6 +100,7 @@ if __name__ == '__main__':
         if os.path.exists(tmpfile):
             os.remove(tmpfile)
         cla = Classifier('./checkpoints/model-30.meta')
-        cla.predict(inputx.reshape(-1,1024,4))
+        for i in range(4):
+            cla.predict(inputx[i])
 
 
