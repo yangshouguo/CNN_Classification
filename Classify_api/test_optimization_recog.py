@@ -99,8 +99,7 @@ if __name__ == '__main__':
         inputx = datahelper.read_binary_from_file(tmpfile)
         if os.path.exists(tmpfile):
             os.remove(tmpfile)
-        cla = Classifier('./checkpoints/model-30.meta')
-        for i in range(4):
-            cla.predict(inputx[i])
+        cla = Classifier('./checkpoints/model-182800.meta')
+        cla.predict(inputx.reshape(-1,1024,4))
 
 

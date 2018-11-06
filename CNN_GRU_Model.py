@@ -15,7 +15,7 @@
 # @intro: 神经网络模板
 import tensorflow as tf
 import numpy as np
-
+tf.reset_default_graph()
 
 class TextCNN(object):
     def __init__(self
@@ -128,14 +128,14 @@ class TextCNN(object):
 
         x = tf.reshape(x, [self.batchsize, time_step, -1])
 
-        with tf.name_scope('GRU_{}'.format(time_step)):
+        with tf.variable_scope('GRU_{}'.format(time_step)):
 
             rnn_cell = tf.nn.rnn_cell.GRUCell(n_hidden, name="GRU")
 
             outputs, states = tf.nn.dynamic_rnn(rnn_cell, x, dtype=tf.float32)
-            weights = tf.get_variable('lstm_weight', [n_hidden, out_size], dtype=tf.float32
+            weights = tf.get_variable('lstm_weight{}'.format(time_step), [n_hidden, out_size], dtype=tf.float32
                                       , initializer=tf.random_normal_initializer(mean=0, stddev=1))
-            biase = tf.get_variable('lstm_b', [out_size], dtype=tf.float32,
+            biase = tf.get_variable('lstm_b{}'.format(time_step), [out_size], dtype=tf.float32,
                                     initializer=tf.random_normal_initializer(mean=0, stddev=1))
 
         return tf.matmul(outputs[:, -1, :], weights) + biase

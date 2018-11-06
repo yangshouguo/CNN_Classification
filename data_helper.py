@@ -92,7 +92,7 @@ class DataHelper(object):
         if byte_array.size < rowbyte * rows:
             byte_array = np.pad(byte_array, (0, rows * rowbyte - byte_array.size), 'constant')
         byte_arrays.append(byte_array.reshape(rows, rowbyte))
-        return byte_arrays
+        return np.array(byte_arrays)
 
     def read_hex_from_file(self, file_path, rows=1024, min_len=100, fromMid=True):
         # file_path: 二进制文件的路径
