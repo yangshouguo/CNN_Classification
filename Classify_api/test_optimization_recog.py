@@ -85,6 +85,25 @@ class Classifier(object):
             print(' -Os ')
 
         return 0
+    def predict_label(self, inputx, label):
+
+        if not self._loaded:
+            print('you need load model first!')
+            return 0
+
+        # self._sess.run()
+
+        result = self._sess.run(self._output, feed_dict={self._inputx:inputx, self._dropout:1.0})
+
+        result = result.tolist()
+
+        #取众数
+        count = np.bincount(result)
+        pre = np.argmax(count)
+        if label == pre:
+            return 1
+        else:
+            return 0
 
 
 def GenerateBinaryData(fromfile, tofile):
@@ -93,29 +112,31 @@ def GenerateBinaryData(fromfile, tofile):
 
 
 if __name__ == '__main__':
-    #参数
     ArgParse = argparse.ArgumentParser(description="本脚本加载训练好的模型，用于5分类编译优化选项识别")
-    ArgParse.add_argument('-f','--file',help="指定待识别编译优化选项的二进制文件的路径")
+    ArgParse.add_argument('-f', '--file', help="指定待识别编译优化选项的二进制文件的路径")
     args = ArgParse.parse_args()
 
-    from data_helper import DataHelper
+    from Classify_api.data_helper_test import DataHelper
+
     datahelper = DataHelper()
 
     if args.file:
 
         file_path = args.file
         print(file_path)
-        cla = Classifier('./checkpoints/model-30.meta')
+
+        # 加载数据集
+
+        inputx = datahelper.get_all_data("../../dataset_single_obj")
+
+        cla = Classifier('./checkpoints/model-182800.meta')
 
         result = []
-        with open(file_path,'r') as f:
-            file_lines = f.readlines()
-            for file_line in file_lines:
-                inputx = datahelper.read_binary_from_file(file_line.strip())
-                result.append(cla.predict(inputx.reshape(-1, 1024, 4)))
+        for obj_bin in inputx:
+
+            result.append(cla.predict_label(obj_bin[0],label= obj_bin[1]))
 
         print(np.mean(result))
-        print(len(result))
 
 
 
