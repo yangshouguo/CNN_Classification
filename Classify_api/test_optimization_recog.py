@@ -85,7 +85,7 @@ class Classifier(object):
             print(' -Os ')
 
         return 0
-    def predict_label(self, inputx, label):
+    def predict_label(self, inputx, label, transf_mat={}):
 
         if not self._loaded:
             print('you need load model first!')
@@ -100,6 +100,10 @@ class Classifier(object):
         #取众数
         count = np.bincount(result)
         pre = np.argmax(count)
+        if label not in transf_mat:
+            transf_mat.setdefault(label,[0,0,0,0])
+        transf_mat[label][pre] += 1
+
         if label == pre:
             return 1
         else:
@@ -132,11 +136,13 @@ if __name__ == '__main__':
         cla = Classifier('./checkpoints/model-182800.meta')
 
         result = []
+        transf_mat = {}
         for obj_bin in inputx:
 
-            result.append(cla.predict_label(obj_bin[0],label= obj_bin[1]))
+            result.append(cla.predict_label(obj_bin[0],label= obj_bin[1], transf_mat=transf_mat))
 
         print(np.mean(result))
+        print(transf_mat)
 
 
 
