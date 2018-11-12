@@ -3,21 +3,24 @@ import numpy as np
 import os
 from data_helper import DataHelper
 tf.reset_default_graph()
-TRAIN_FOR_RNN = False # 用于rnn训练
+TRAIN_FOR_RNN = True # 用于rnn训练
 POSITION_EMBEDDING = False # position embedding
-class_num = 5 # 类别数目
+class_num = 4 # 类别数目
+
+PRE_MODEL="BinEye"
+
 if TRAIN_FOR_RNN:
 #RNN train
-    from CNN_LSTM_Model import TextCNN
-    os.environ['CUDA_VISIBLE_DEVICES'] = '4,5'
-    filter_shapes = "4"
+    from Optimization_Class import TextCNN
+    os.environ['CUDA_VISIBLE_DEVICES'] = '1,2,3,4,5,6,7,8'
+    filter_shapes = "2,3,4,5"
 else:
     from GatedCNN import TextCNN
     os.environ['CUDA_VISIBLE_DEVICES'] = '1,2,4,5,7'
     filter_shapes = "3,4,5,6"
 
 tf.flags.DEFINE_float("dev_sample_percentage", .2, "Percentage of the training data to use for validation (default is 0.2)")
-tf.flags.DEFINE_string("data_file", "../dataset_decreaseO23/",
+tf.flags.DEFINE_string("data_file", "../dataset_single_obj/",
                        "Data source for the data.")
 # tf.flags.DEFINE_string("negative_data_file", "./data/rt-polaritydata/rt-polarity.neg",
 #                        "Data source for the negative data.")
@@ -34,7 +37,7 @@ tf.flags.DEFINE_integer("hidden_dim", 1024, "hidden layer dimension default(500)
 tf.flags.DEFINE_integer("batch_size", 4, "Batch Size (default: 64)")
 tf.flags.DEFINE_integer("num_epochs", 10, "Number of training epochs (default: 200)")
 tf.flags.DEFINE_integer("evaluate_every", 1000, "Evaluate model on dev set after this many steps (default: 1000)")
-tf.flags.DEFINE_integer("checkpoint_every", 100, "Save model after this many steps (default: 100)")
+tf.flags.DEFINE_integer("checkpoint_every", 10, "Save model after this many steps (default: 100)")
 tf.flags.DEFINE_integer("num_checkpoints", 20, "Number of checkpoints to store (default: 20)")
 
 # Misc Parameters
@@ -121,7 +124,7 @@ def train(x_train, y_train, x_dev, y_dev):
         grad_summaries_merged = tf.summary.merge(grad_summaries)
 
         timestamp = str(datetime.datetime.now()).replace(' ','-')
-        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", timestamp))
+        out_dir = os.path.abspath(os.path.join(os.path.curdir, "runs", PRE_MODEL+timestamp))
         print('wirting to {}\n'.format(out_dir))
 
         # Summaries for loss and accuracy

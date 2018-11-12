@@ -7,7 +7,7 @@
 # @intro: 神经网络模板
 import tensorflow as tf
 import numpy as np
-
+from functools import reduce
 
 class TextCNN(object):
     def __init__(self
@@ -57,28 +57,32 @@ class TextCNN(object):
                                     name='conv')
 
                 h = tf.nn.relu(tf.nn.bias_add(conv, b), name='relu')
-                # 添加一维卷积
-                # conv_1d_filter_shape = [filter_size, h.shape.as_list()[-1], h.shape.as_list()[-1]]
-                # conv_1d_W = tf.Variable(tf.random_normal(conv_1d_filter_shape, stddev=0.1), name="conv_1d_W")
-                #
-                # conv_1d_op = tf.nn.conv1d(tf.reshape(h, (-1, h.shape[1], h.shape[-1])), conv_1d_W, stride=1,
-                #                           padding="SAME", name='conv_1d_op')
-                # h = tf.reshape(conv_1d_op, shape=(-1, conv_1d_op.shape[1], 1, conv_1d_op.shape[-1]))
-                # 添加一维卷积
-                pooled = tf.nn.avg_pool(h, ksize=[1, seq_len - filter_size + 1, 1, 1], #seq_len - filter_size 让卷积得到的结果变成一个单一的值
-                                        strides=[1, 1, 1, 1],
+
+                # 尝试对第四维度进行池化
+                h = tf.reshape(h, [-1, seq_len-filter_size+1, num_filters, 1])
+
+                pooled,arg = tf.nn.max_pool_with_argmax(h, ksize=[1,1,num_filters,1],
+                                        strides=[1,1,1,1],
                                         padding="VALID",
-                                        name='pool')
+                                        name="pool_argmax")
+
+                #对第三维度进行池化
+                # pooled = tf.nn.avg_pool(h, ksize=[1, seq_len - filter_size + 1, 1, 1], #seq_len - filter_size 让卷积得到的结果变成一个单一的值
+                #                         strides=[1, 1, 1, 1],
+                #                         padding="VALID",
+                #                         name='pool')
                 pooled_outputs.append(pooled)
         # Combine all the pooled features
-        num_filters_total = num_filters * len(filter_sizes)
-        self.h_pool = tf.concat(axis=3, values=pooled_outputs)
-        self.h_pool_flat = tf.reshape(self.h_pool, [-1, num_filters_total])
+
+        concat_len = seq_len*len(filter_sizes)- reduce(lambda x,y:x+y, filter_sizes) + len(filter_sizes)
+
+        self.h_pool = tf.concat(axis=1, values=pooled_outputs)
+        self.h_pool_flat = tf.reshape(self.h_pool, [-1, concat_len])
 
         with tf.name_scope('dropout'):
             self.h_drop = tf.nn.dropout(self.h_pool_flat, self.dropout_keep_prob)
         with tf.name_scope('dense_layer'):
-            W_d = tf.Variable(tf.truncated_normal([num_filters_total, self._hidden_size], stddev=0.1), name="W_d")
+            W_d = tf.Variable(tf.truncated_normal([concat_len, self._hidden_size], stddev=0.1), name="W_d")
             b_d = tf.Variable(tf.constant(0.2, shape=[self._hidden_size]),name='b_d')
             self.hidden_out = tf.sigmoid(tf.nn.xw_plus_b(self.h_drop, W_d, b_d))
 
