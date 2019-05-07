@@ -65,6 +65,20 @@ class DataHelper(object):
         # train_data = np.true_divide(train_data, 1)
         return train_data, data[:, 1]
 
+    def strip_zero(self, arr):
+        #每次检查4个字节
+        arr = np.array(arr)
+        byte_check = 4
+        pos = -4
+        sum = 0
+        while sum<=0:
+            pos += byte_check
+            arr_check = arr[pos:pos+4]
+            sum += np.sum(arr_check)
+
+        return arr[pos:]
+        pass
+
     def read_binary_from_file(self, file_path, rowbyte=4, min_row=100, rows=1024):
         # file_path: 二进制文件的路径
         # rowbyte: 每一行的字节数
@@ -78,6 +92,8 @@ class DataHelper(object):
         # 将所有字节内容分成多个 rows * rowbyte 的numpy数组并返回
         with open(file_path, 'rb') as f:
             allbytevalue = list(bytearray(f.read()))
+
+        allbytevalue = self.strip_zero(allbytevalue)
 
         seg_length = rowbyte*rows
         segs = int(len(allbytevalue)/seg_length)
@@ -117,9 +133,11 @@ class DataHelper(object):
 
 def test():
     dh = DataHelper(5)
-    data = dh.load_data_and_labels('../dataset_singlefunc/')
-
-    print({0:[1,2,3]})
+    # data = dh.load_data_and_labels('../dataset_singlefunc/')
+    #
+    # print({0:[1,2,3]})
+    arr = [0,0,0,0,0,0,0,0,0,1,2,3]
+    print(dh.strip_zero(arr))
 
 
 if __name__ == '__main__':

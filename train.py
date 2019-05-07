@@ -3,7 +3,7 @@ import numpy as np
 import os
 from data_helper import DataHelper
 tf.reset_default_graph()
-TRAIN_FOR_RNN = True # 用于rnn训练
+TRAIN_FOR_RNN = False # 用于rnn训练
 POSITION_EMBEDDING = False # position embedding
 class_num = 4 # 类别数目
 

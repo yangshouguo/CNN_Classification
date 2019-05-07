@@ -124,25 +124,20 @@ if __name__ == '__main__':
 
     datahelper = DataHelper()
 
-    if args.file:
+    # 加载数据集
 
-        file_path = args.file
-        print(file_path)
+    inputx = datahelper.get_all_data("../../dataset_single_obj")
 
-        # 加载数据集
+    cla = Classifier('./checkpoints/model-182800.meta')
 
-        inputx = datahelper.get_all_data("../../dataset_single_obj")
+    result = []
+    transf_mat = {}
+    for obj_bin in inputx:
 
-        cla = Classifier('./checkpoints/model-182800.meta')
+        result.append(cla.predict_label(obj_bin[0],label= obj_bin[1], transf_mat=transf_mat))
 
-        result = []
-        transf_mat = {}
-        for obj_bin in inputx:
-
-            result.append(cla.predict_label(obj_bin[0],label= obj_bin[1], transf_mat=transf_mat))
-
-        print(np.mean(result))
-        print(transf_mat)
+    print(np.mean(result))
+    print(transf_mat)
 
 
 

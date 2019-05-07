@@ -13,7 +13,6 @@ class TextCNN(object):
     def __init__(self
                  , seq_len, seq_width, num_class, hidden_size, embedding_size, filter_sizes, num_filters,
                  vocabsize=pow(2, 8), position_embedding=False):
-        pass
 
         self.input_x = tf.placeholder(tf.int32, [None, seq_len, seq_width], name='inputx')
         self.input_y = tf.placeholder(tf.float32, [None, num_class], name='inputy')

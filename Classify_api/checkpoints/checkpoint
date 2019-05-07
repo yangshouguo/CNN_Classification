@@ -1,0 +1,2 @@
+model_checkpoint_path: "/Users/shouguoyang/study/iie/CompilerOptimizationRecognition/CNN_Classification/Classify_api/checkpoints/model-67500"
+all_model_checkpoint_paths: "/Users/shouguoyang/study/iie/CompilerOptimizationRecognition/CNN_Classification/Classify_api/checkpoints/model-67500"
